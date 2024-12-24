@@ -20,9 +20,9 @@ const router = createRouter({
       name: "main",
     },
     {
-      path: "/Json",
-      component: () => import("../components/Json.vue"),
-      name: "json",
+      path: "/menu",
+      component: () => import("../components/menu.vue"),
+      name: "menu",
     }
   ],
 });
@@ -30,9 +30,6 @@ router.beforeEach(async (to, from) => {
   const isAuthenticated = localStorage.getItem("jwt");
   if (!isAuthenticated && to.name !== "login") {
     return { name: "login" };
-  }
-  if (isAuthenticated && to.name === "login") { 
-    return { name: "list" };
   }
 });
 

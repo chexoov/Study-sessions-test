@@ -1,6 +1,7 @@
 <template>
   <LangChanger />
-  <CreateModal />
+  <CreateModal />    
+       <router-link :to="{ name: 'menu' }">Перейти на главную</router-link>
   <div>
     <div class="example-input">
       <el-input
@@ -23,8 +24,6 @@
         />
       </el-select>
     </div>
-
-    <router-link :to="{ name: 'json' }">Перейти на главную</router-link>
     <el-table :data="tableData" style="width: 100%" max-height="100%">
       <el-table-column label="№">
         <template #default="scope">
