@@ -32,18 +32,6 @@ const options = [
     value: "en",
     label: "English",
   },
-  {
-    value: "es",
-    label: "Español",
-  },
-  {
-    value: "fr",
-    label: "Français",
-  },
-  {
-    value: "ja",
-    label: "日本語",
-  },
 ];
 const value = ref(locale.value);
 const changeLocale = (value: string) => {
