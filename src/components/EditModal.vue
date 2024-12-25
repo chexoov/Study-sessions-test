@@ -1,107 +1,96 @@
 <template>
-  <el-form ref="ruleFormRef" :model="newEditing" :rules="rules">
+  <el-form :model="newEditing">
     <el-dialog
       v-model="dialogVisibleEdit"
       @close="$emit('closeDialog')"
       destroy-on-close
       title=""
-      width="800"
+      width="500"
     >
-      <p>Заявка №{{ newEditing.number }} (от {{ newEditing.created }})</p>
-      <div class="dialog-content-header">
-        <el-form-item prop="address"  style="width: 240px" >
-          <el-select
-            class="dialog-content-header-item"
-            v-model="newEditing.address"
-            @change="handleChange"
-          >
-            <el-option
-              class=""
-              v-for="item in getSelectInfo"
-              :key="item"
-              :label="item.address"
-              :value="item.id"
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item prop="apartment_id" style="width: 240px">
-          <el-select
-            class="dialog-content-header-item"
-            v-model="newEditing.apartment_id"
-            placeholder="Квартира"
-          >
-            <el-option
-              v-for="item in getNumberHome"
-              :key="item"
-              :label="item.label"
-              :value="item.number"
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item prop="due_date">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newEditing.due_date"
-            disabled
+     
+      <p>  {{$t("table.interface.editing")}} {{ newEditing.date }}</p>
+      <el-form-item prop="status" style="width: auto">
+        <span class="discription-edit">{{$t("table.interface.status")}}</span>
+        <el-select
+          class="dialog-content-header-item"
+          v-model="newEditing.status"
+        >
+          <el-option
+            class=""
+            v-for="(status, index) in statuses"
+            :key="index"
+            :label="status"
+            :value="status"
           />
-        </el-form-item>
-      </div>
-      <div class="dialog-content-header">
-        <el-form-item prop="aplicant.last_name">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newEditing.applicant.last_name"
-            placeholder="Фамилия"
-          />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item prop="aplicant.first_name">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newEditing.applicant.first_name"
-            placeholder="Имя"
+      <el-form-item prop="moduleName" style="width: auto">
+        <span class="discription-edit">{{$t("table.interface.moduleName")}}</span>
+        <el-select
+          class="dialog-content-header-item"
+          v-model="newEditing.moduleName"
+        >
+          <el-option
+            class=""
+            v-for="(moduleName, index) in moduleNames"
+            :key="index"
+            :label="moduleName"
+            :value="moduleName"
           />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item prop="aplicant.patronymic_name">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newEditing.applicant.patronymic_name"
-            placeholder="Отчество"
+      <el-form-item prop="sessionType" style="width: auto">
+        <span class="discription-edit">{{$t("table.interface.sessionType")}}</span>
+        <el-select
+          class="dialog-content-header-item"
+          v-model="newEditing.sessionType"
+        >
+          <el-option
+            class=""
+            v-for="(sessionType, index) in sessionTypes"
+            :key="index"
+            :label="sessionType"
+            :value="sessionType"
           />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item prop="aplicant.username">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newEditing.applicant.username"
-            placeholder="Телефон"
+      <el-form-item prop="room" style="width: auto">
+        <span class="discription-edit">{{$t("table.interface.room")}}</span>
+        <el-select class="dialog-content-header-item" v-model="newEditing.room">
+          <el-option
+            class=""
+            v-for="(room, index) in rooms"
+            :key="index"
+            :label="room"
+            :value="room"
           />
-        </el-form-item>
-      </div>
-      <div>
-        <el-form-item prop="description">
-          <textarea
-            class="dialog-content-textarea"
-            v-model="newEditing.description"
-            placeholder="Описание заявки"
-            name=""
-            id=""
-            cols="93"
-            rows="13"
-          ></textarea>
-        </el-form-item>
-      </div>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item prop="group" style="width: auto">
+        <span class="discription-edit">{{$t("table.interface.group")}}</span>
+        <el-select
+          class="dialog-content-header-item"
+          v-model="newEditing.group"
+        >
+          <el-option
+            class=""
+            v-for="(group, index) in groups"
+            :key="index"
+            :label="group"
+            :value="group"
+          />
+        </el-select>
+      </el-form-item>
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="patchEdit(ruleFormRef)"
-            >{{
-            $t("table.button.create")
-          }}</el-button
-          >
+          <el-button @click="editSession" type="primary" >{{
+            $t("table.button.save")
+          }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -109,16 +98,8 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
-import { computed, ref, toRefs } from "vue";
+import { ref } from "vue";
 import { useListData } from "../stores/ListData";
-import { FormInstance } from "element-plus";
-
-import { useValidationRules } from "../valid";
-
-import api from "../api";
-
-const { rules } = useValidationRules();
 
 const props = defineProps({
   openDialog: {
@@ -127,115 +108,62 @@ const props = defineProps({
   },
 });
 
-const ruleFormRef = ref<FormInstance>();
-
 const dialogVisibleEdit = ref(props.openDialog);
 
 const store = useListData();
 
 const newEditing = ref({
-  premise_id: "",
-
-  number: "",
-  address: "",
-  
-  created: "",
   id: "",
-
-  apartment_id: "",
-  applicant: {
-    first_name: "",
-    last_name: "",
-    patronymic_name: "",
-    username: "",
-  },
-  description: "",
-  due_date: "",
-  status_id: "1",
+  date: "",
+  status: "",
+  moduleName: "",
+  sessionType: "",
+  room: "",
+  group: "",
 });
+
+const statuses = ["Запланировано", "Идет", "Завершено"];
+const moduleNames = [
+  "Базовые навыки в ультразвуковом иследовании",
+  "Акушерство и гинекология",
+  "Базовые навыки в ультразвуковом иследовании",
+];
+const sessionTypes = ["Урок", "Акредитация", "Экзамен"];
+const groups = ["ТП-31", "240011С", "КЛ-98"];
+const rooms = ["Комната 6", "Комната 7", "Комната 2"];
+
+
 
 const getTicketFromStore = () => {
-  newEditing.value.premise_id = store.editingTicketData.premise_id;
-  newEditing.value.address = store.editingTicketData.address;
-  newEditing.value.numberHome = store.editingTicketData.numberHome;
-  newEditing.value.number = store.editingTicketData.number;
-  newEditing.value.created = store.editingTicketData.created;
   newEditing.value.id = store.editingTicketData.id;
-  newEditing.value.apartment_id = store.editingTicketData.numberHome;
-  newEditing.value.due_date = store.editingTicketData.due_date;
-  newEditing.value.applicant.first_name =
-    store.editingTicketData.applicant.first_name;
-  newEditing.value.applicant.last_name =
-    store.editingTicketData.applicant.last_name;
-  newEditing.value.applicant.patronymic_name =
-    store.editingTicketData.applicant.patronymic_name;
-  newEditing.value.applicant.username =
-    store.editingTicketData.applicant.username;
-  newEditing.value.description = store.editingTicketData.description;
-  newEditing.value.status_id = store.editingTicketData.status_id;
+  newEditing.value.date = store.editingTicketData.date;
+  newEditing.value.status = store.editingTicketData.status;
+  newEditing.value.moduleName = store.editingTicketData.moduleName;
+  newEditing.value.sessionType = store.editingTicketData.sessionType;
+  newEditing.value.room = store.editingTicketData.room;
+  newEditing.value.group = store.editingTicketData.group;
 };
+
 getTicketFromStore();
 
-const tableData = ref([]);
-
-const getPremise = async () => {
-  api.tickets.getPremise().then((data) => {
-    tableData.value = data.data.results;
-  });
-};
-getPremise();
-
-// !!
-const patchEdit = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log("submit!");
-      try {
-        api.tickets
-          .updateTicket(newEditing.value.id, newEditing.value)
-          .then((data) => {
-            console.log("успешно", data);
-          });
-      } catch (error) {
-        console.error("Ошибка отправки данных:", error);
-      }
-    } else {
-      console.log("error submit!", fields);
+const editSession = () => {
+  store.content.find((item) => {
+    if (item.id === newEditing.value.id) {
+      item.date = newEditing.value.date;
+      item.status = newEditing.value.status;
+      item.moduleName = newEditing.value.moduleName;
+      item.sessionType = newEditing.value.sessionType;
+      item.room = newEditing.value.room;
+      item.group = newEditing.value.group;
+      localStorage.setItem("tableData", JSON.stringify(store.content));
     }
+    dialogVisibleEdit.value = false;
+    
   });
-};
-
-const currentPremise = ref("");
-const getNumberHome = ref([]);
-const getApartment = async () => {
-  api.tickets.getApartments(currentPremise.value).then((data) => {
-    getNumberHome.value = data.data.results;
-  });
-};
-
-const getSelectInfo = computed(() => {
-  const res = tableData.value.map((item: any) => {
-    return item;
-  });
-  console.log("все данные", res);
-  return res;
-});
-
-const handleChange = () => {
-  getSelectInfo.value.forEach((item: any) => {
-    if (item.id === newEditing.value.address) {
-      currentPremise.value = item.id;
-      newEditing.value.address = item.address;
-      newEditing.value.apartment_id = item.apartment_id;
-      newEditing.value.premise_id = currentPremise.value;
-    }
-  });
-  getApartment();
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .dialog-content-header {
   display: flex;
   padding: 5px;
@@ -253,5 +181,10 @@ const handleChange = () => {
   padding-top: 20px;
   border: none;
   border-bottom: 2px solid #ccc;
+}
+
+.discription-edit {
+  text-decoration: underline;
+  text-decoration-color: red;
 }
 </style>

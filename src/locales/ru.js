@@ -1,20 +1,51 @@
 export default {
-    table: {
-      headers: {
-        created: 'Создан',
-        status: 'Cтатус',
-        address: 'Адрес',
-        applicant: 'Заявитель',
-        description: 'Описание',
-        term: 'Срок',
-      },
-      button: {
-        edit: 'Редактировать',
-        create: 'Создать',
-      },
-      serch: {
-        search_applicant: 'Поиск (номер заявки, имя)',
-        search_house: 'Дом',
-      }
-    }
-  }
+  table: {
+    headers: {
+      date: "Дата и время",
+      status: "Cтатус",
+      moduleName: "Название учбеного модуля",
+      sessionType: "Тип сессии",
+      room: "Комната",
+      group: "Группа",
+      edit: "Редактировать",
+      create: "Создать",
+    },
+    serch: {
+      input: "Поиск по названию учебного модуля",
+    },
+    button: {
+      create: "Создать",
+      save: "Сохранить",
+    },
+    interface: {
+      editing: "Редаткирование сессии от",
+      creating: "Создание сессии от",
+      date: "Дата и время",
+      status: "Статус",
+      moduleName: "Название учебного модуля",
+      sessionType: "Тип сессии",
+      room: "Комната",
+      group: "Группа",
+    },
+    placeholder: {
+      date: "Выберите дату",
+      status: "Выберите статус",
+      moduleName: "Выберите название учебного модуля",
+      sessionType: "Выберите тип сессии",
+      room: "Выберите комнату",
+      group: "Выберите группу",
+    },
+    menu: {
+      logo: "Сим центр",
+      schedule: "Расписание",
+      trainingSessions: "Учебные сессии",
+      listOfRooms: "Список комнат",
+      users: "Пользователи",
+      studyGroups: "Учебные группы",
+      listOfDevices: "Список устройств",
+      settings: "Настройки системы",
+      archive: "Архив",
+      exit: "Выход",
+    },
+  },
+};

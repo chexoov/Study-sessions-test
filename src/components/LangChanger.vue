@@ -3,7 +3,7 @@
       v-model="value"
       placeholder="Select"
       size="large"
-      style="width: 240px"
+      style="width: 100% "
       @change="changeLocale"
     >
       <el-option
@@ -52,5 +52,7 @@ const changeLocale = (value: string) => {
 };
 
 
-
 </script>
+<style scoped>
+
+</style>

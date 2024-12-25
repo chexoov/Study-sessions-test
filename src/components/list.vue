@@ -1,256 +1,169 @@
 <template>
-  <LangChanger />
-  <CreateModal />    
-       <router-link :to="{ name: 'menu' }">Перейти на главную</router-link>
-  <div>
-    <div class="example-input">
-      <el-input
-        v-model="serchInput"
-        class="input-serch"
-        suffix-icon="Search"
-        :placeholder="$t('table.serch.search_applicant')"
-        @input="debouncedGetSerchInfo"
-      />
-      <el-select
-        v-model="selectHome"
-        :placeholder="$t('table.serch.search_house')"
-      >
-        <el-option
-        v-for="item in allHome"
-        @click="getSerchInfoSelect(item.id)"
-          :key="item"
-          :label="item.address"
-          :value="item.id"
+  <div style="display: flex; width: 100%">
+    <Menu />
+    <!-- <router-link :to="{ name: 'menu' }">Перейти на главную</router-link> -->
+    <div class="main-table">
+      <div class="main-table__buttons">
+        <el-input
+          v-model="searchInput"
+          style="
+            width: 280px;
+            height: 30px;
+            margin-top: 2px;
+            margin-right: 10px;
+            font-size: small;
+          "
+          size="large"
+          :placeholder="$t('table.serch.input')"
+          :prefix-icon="Search"
         />
-      </el-select>
-    </div>
-    <el-table :data="tableData" style="width: 100%" max-height="100%">
-      <el-table-column label="№">
-        <template #default="scope">
-          <el-button type="primary">{{ scope.row.number }}</el-button></template
-        >
-      </el-table-column>
-      <el-table-column prop="created_at" :label="$t('table.headers.created')" />
-      <el-table-column
-        prop="premise.address"
-        :label="$t('table.headers.address')"
-      />
-      <el-table-column
-        prop="applicant.first_name"
-        :label="$t('table.headers.applicant')"
-      />
-      <el-table-column
-        prop="description"
-        :label="$t('table.headers.description')"
-      />
-      <el-table-column
-        prop="status.full_details"
-        :label="$t('table.headers.term')"
-      />
-      <el-table-column prop="status.name" :label="$t('table.headers.status')" />
-      <el-table-column>
-        <template #default="scope">
-          <el-button type="danger" @click="openEditingDialog(scope.row)">{{
-            $t("table.button.edit")
-          }}</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <EditModal
-      v-if="dialogVisibleEdit"
-      :openDialog="dialogVisibleEdit"
-      @close-dialog="closeEditingDialog"
-    />
+        <el-button type="info" circle>
+          <template #icon> <img src="/filtering.png" alt="" /> </template>
+        </el-button>
 
-    <div class="example-pagination-block">
-      <div class="m-4">
-        <el-select
-          class="border-border"
-          v-model="selectSize"
-          style="width: 100px; border: none"
-          @change="resizeTable"
-        >
-          <el-option
-            v-for="item in numbers"
-            :key="item"
-            :label="item"
-            :value="item"
-          />
-        </el-select>
+        <el-button type="info" circle>
+          <template #icon> <img src="/sorting.png" alt="" /> </template>
+        </el-button>
+        <el-button type="primary" round @click="openDialogCreate">{{
+          $t("table.button.create")
+        }}</el-button>
       </div>
-      <el-pagination
-        v-if="!serchInput"
-        :page-count="pageAmount"
-        layout="prev, pager, next"
-        @current-change="handleCurrentChange"
+
+      <CreateModal
+        v-if="dialogVisibleCreate"
+        :openDialog="dialogVisibleCreate"
+        @close-dialog="closeDialogCreate"
       />
+      <div style="border-bottom: 1px"></div>
+      <el-table
+        border
+        class="main-table__table"
+        @cell-click="openEditingDialog"
+        :data="searchedSessions"
+        style="width: 100%; cursor: pointer"
+        max-height="100%"
+        stripe
+      >
+        <el-table-column sortable prop="id" label="" width="50px" />
+        <el-table-column prop="date" :label="$t('table.headers.date')" />
+        <el-table-column prop="status" :label="$t('table.headers.status')" />
+        <el-table-column
+          prop="moduleName"
+          :label="$t('table.headers.moduleName')"
+        />
+        <el-table-column
+          prop="sessionType"
+          :label="$t('table.headers.sessionType')"
+        />
+        <el-table-column prop="room" :label="$t('table.headers.room')" />
+        <el-table-column prop="group" :label="$t('table.headers.status')" />
+      </el-table>
+      <EditModal
+        v-if="dialogVisibleEdit"
+        :openDialog="dialogVisibleEdit"
+        @close-dialog="closeEditingDialog"
+      />
+
+      <div v-if="!isSearched" class="main-table">
+        <el-pagination
+          :page-count="pageAmount"
+          layout="prev, pager, next"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
 import { computed, ref } from "vue";
 import CreateModal from "./CreateModal.vue";
 import EditModal from "./EditModal.vue";
-import debounce from "lodash/debounce";
-import LangChanger from "./LangChanger.vue";
-
+import Menu from "./Menu.vue";
 import { useListData } from "../stores/ListData";
-import { getHello, getDefault } from "../helpers";
+import { Search } from "@element-plus/icons-vue";
 
-import api from "../api";
+const searchInput = ref("");
 
-api.tickets.getTickets(1, 10).then((data) => {
-  tableData.value = data.data.results;
-  pageAmount.value = data.data.pages;
-  console.log("data", data);
+const searchedSessions = computed(() => {
+  if (!searchInput.value) {
+    return tableData.value;
+  }
+
+  return store.content
+    .filter((session) => {
+      return session.moduleName
+        .toLowerCase()
+        .includes(searchInput.value.toLowerCase());
+    })
+    .slice(0, 10);
 });
 
-console.log("getHello()", getHello());
-console.log("getDefault()", getDefault());
+const isSearched = computed(() => {
+  return !!searchInput.value;
+});
 
 const store = useListData();
 
-console.log(store.editingTicketData);
+const dialogVisibleCreate = ref(false);
 
 const dialogVisibleEdit = ref(false);
 
-const numbers = Array.from({ length: 20 }).map((_, i) => i + 1);
-const selectSize = ref(10);
-
 const serchInput = ref("");
-const selectHome = ref("");
-
-const pageAmount = ref(0);
-
-const newEditing = ref({
-  premise_id: "",
-
-  number: "",
-  address: "",
-  numberHome: "",
-  created: "",
-  id: "",
-
-  apartment_id: "",
-  applicant: {
-    first_name: "",
-    last_name: "",
-    patronymic_name: "",
-    username: "",
-  },
-  description: "",
-  due_date: "",
-  status_id: "1",
-});
-
-const openEditingDialog = (proppedCol) => {
-  console.log("otvet", dialogVisibleEdit.value);
-  console.log("proppedCol", proppedCol);
-  dialogVisibleEdit.value = true;
-  store.editingTicketData.premise_id = proppedCol.premise_id;
-
-  store.editingTicketData.address = proppedCol?.premise?.address || "";
-  store.editingTicketData.numberHome = proppedCol.apartment.label;
-  store.editingTicketData.number = proppedCol.number;
-  store.editingTicketData.created = proppedCol.status_log.created_at;
-  store.editingTicketData.id = proppedCol.id;
-
-  store.editingTicketData.apartment_id = proppedCol.apartment_id;
-  store.editingTicketData.due_date = proppedCol.due_date;
-  store.editingTicketData.applicant.first_name =
-    proppedCol.applicant.first_name;
-  store.editingTicketData.applicant.last_name = proppedCol.applicant.last_name;
-  store.editingTicketData.applicant.patronymic_name =
-    proppedCol.applicant.patronymic_name;
-  store.editingTicketData.applicant.username = proppedCol.applicant.username;
-  store.editingTicketData.description = proppedCol.description;
-  store.editingTicketData.status_id = proppedCol.status_id;
-
-  console.log(store.editingTicketData);
-};
 
 const closeEditingDialog = () => {
   dialogVisibleEdit.value = false;
 };
 
-
-const resizeTable = () => {
-  getInfo(1, selectSize.value);
+const closeDialogCreate = () => {
+  dialogVisibleCreate.value = false;
 };
 
-const handleCurrentChange = (val: number) => {
-  getInfo(val, selectSize.value);
-  console.log(`current page: ${val}`);
+const pageAmount = computed(() => {
+  return Math.ceil(store.content.length / 10);
+});
+
+const tableData = ref<Record<string, string>[]>([]);
+
+const getInfo = () => {
+  tableData.value = store.content.slice(0, 10);
+  localStorage.setItem("tableData", JSON.stringify(store.content));
 };
 
-// основная таблица
-const tableData = ref([]);
-const getInfo = async (currentPage = 1, currentSize = 10) => {
-  api.tickets.getTickets(currentPage, currentSize).then((data) => {
-    tableData.value = data.data.results;
-    pageAmount.value = data.data.pages;
-    console.log("logo", tableData.value);
-    normalizeDate();
-  });
-};
 getInfo();
 
-// инпут поиска
-const getSerchInfo = async (currentSearch = "") => {
-  if (currentSearch === "") {
-    getInfo();
-    return;
-  }
-  api.tickets.searchTicket(currentSearch).then((data) => {
-    tableData.value = data.data.results;
-  });
+const handleCurrentChange = (current: number) => {
+  tableData.value = store.content.slice((current - 1) * 10, current * 10);
 };
 
-// селект поиска
-const getSerchInfoSelect = async (currentSearch = "") => {
-  if (currentSearch === "") {
-    getInfo();
-    return;
-  }
-  api.tickets.searchHuse(currentSearch).then((data) => {
-    tableData.value = data.data.results;
-    console.log("serchSelect", data.data.results);
-  });
+const openDialogCreate = () => {
+  dialogVisibleCreate.value = true;
 };
 
-const debouncedGetSerchInfo = debounce(getSerchInfo, 1000);
+const openEditingDialog = (proppedCol) => {
+  dialogVisibleEdit.value = true;
 
-// const getSelectInfo = computed(() => {
-//   const res = tableData.value.map((item: any) => {
-//     return item;
-//   });
-//   console.log("все данные", res);
-//   return res;
-// });
-
-const allHome = ref([]);
-const getPremise = async () => {
-  api.tickets.getPremise().then((data) => {
-    allHome.value = data.data.results;
-    console.log("allHome", allHome.value);
-  });
-};
-getPremise();
-
-
-// нормализация даты в таблице
-const normalizeDate = () => {
-  tableData.value.forEach((item: any) => {
-    item.created_at = new Date(item.created_at).toLocaleDateString();
-    console.log("time", item.created_at);
-  });
-
+  console.log("proppedCol", proppedCol);
+  store.editingTicketData.id = proppedCol.id;
+  store.editingTicketData.date = proppedCol.date;
+  store.editingTicketData.status = proppedCol.status;
+  store.editingTicketData.moduleName = proppedCol.moduleName;
+  store.editingTicketData.sessionType = proppedCol.sessionType;
+  store.editingTicketData.room = proppedCol.room;
+  store.editingTicketData.group = proppedCol.group;
 };
 </script>
 
 <style scoped lang="scss">
+img {
+  width: 20px;
+  margin-right: 0px;
+}
+
+.el-table {
+  padding: 0px;
+  font-size: 12px;
+}
 .example-input {
   display: flex;
   padding: 15px;
@@ -260,11 +173,16 @@ const normalizeDate = () => {
 }
 
 .el-table {
-  --el-table-header-text-color: rgba(80, 176, 83, 1);
+  --el-table-header-text-color: grey;
 }
-.example-pagination-block {
+.main-table {
+  width: 80%;
+  padding-left: 40px;
+}
+
+.main-table__buttons {
   display: flex;
-  justify-content: space-between;
-  padding: 15px;
+  justify-content: end;
+  margin: 0 0px 5px auto;
 }
 </style>

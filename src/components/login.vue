@@ -7,12 +7,10 @@
     />
 
     <div class="main-logo">
-      <p class="p-Authorization">Авторизация</p>
+      <p class="main-logo__text">Авторизация</p>
     </div>
 
     <div class="main-box">
-      <router-link :to="{ name: 'list' }">Перейти в список</router-link>
-
       <el-form
         ref="ruleFormRef"
         style="max-width: 600px"
@@ -22,7 +20,7 @@
         class="demo-ruleForm"
       >
         <div class="main-box-content">
-          <p>Логин или Телефон</p>
+          <p style="margin-left: 10px">Логин или Телефон</p>
 
           <div class="Authorization">
             <el-form-item class="" label="">
@@ -48,8 +46,8 @@
           </div>
 
           <el-form-item class="Entrance">
-            <el-button @click="login" type="primary" >
-              <router-link  :to="{ name: 'list' }">Войти</router-link>
+            <el-button @click="navigateToList" type="primary" style="color:white" >
+              Войти
             </el-button>
           </el-form-item>
         </div>
@@ -59,34 +57,26 @@
 </template>
 
 <script lang="ts" setup>
-import { Search } from '@element-plus/icons-vue'
 import { ref } from 'vue'
-import axios from 'axios'
-import router from '../router';
+import { useRouter } from 'vue-router'
 
 const phoneData = ref("")
 const passwordData = ref("")
 const ruleFormRef = ref()
+const router = useRouter();
 
-const login = async() => { 
-  try {
-  const data = await axios.post("https://dev.moydomonline.ru/api/auth/login/ ", {
-    "username": phoneData.value,
-    "password": passwordData.value
-})
-    const jwt = data.data.key
-    localStorage.setItem("jwt", jwt)
-    router.push({ name: 'list' })
-  } catch (error) {
-    
-  }
+const navigateToList = () => {
+  router.push("/list")
 }
 
 </script>
 
 
 <style lang="scss">
-
+.main-logo__text {
+  color : white;
+  font-weight: normal;
+}
 
 img.background {
   width: 100%;
@@ -98,10 +88,10 @@ img.background {
 
 .main-box {
   background-color: white;
-  position: fixed;
-  left: 540px;
+  position: relative;
+  left: 535px;
   width: 340px;
-  height: 280px;
+  height: 250px;
   top: 223px;
   gap: 0px;
   opacity: 0px;
@@ -120,7 +110,7 @@ img.background {
   border-radius: 6px;
   width: (308px);
   height: (50px);
-  background-color: green;
+  background: #3761F3;
   justify-content: center;
 }
 

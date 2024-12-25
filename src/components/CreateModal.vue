@@ -1,101 +1,118 @@
 <template>
-  <!-- диалог создания -->
-  <el-form ref="ruleFormRef" :model="newCreating" :rules="rules">
-    <el-button class="buttonCreate" type="primary" @click="dialogVisibleChange">
-      {{ $t("table.button.create") }}
-    </el-button>
-    <el-dialog v-model="dialogVisible" title="" width="800">
-      <div class="dialog-content-header">
-        <el-form-item prop="address" style="width: 240px">
+  <el-form  :model="newEditing">
+    <el-dialog
+      v-model="dialogVisibleCreate"
+      @close="$emit('closeDialog')"
+      destroy-on-close
+      title=""
+      width="500"
+    >
+      <!-- <p>Заявка №{{ newEditing.number }} (от {{ newEditing.created }})</p> -->
+      <p>{{ $t("table.interface.creating") }}  {{ newEditing.date }}</p>
+      <el-form-item prop="date" style="width: auto">    
+          <span class="discription-edit">{{ $t("table.interface.date") }}</span>
           <el-select
+            :placeholder="$t('table.placeholder.date')"
             class="dialog-content-header-item"
-            v-model="newCreating.address"
-            @change="handleChange"
-            :placeholder="$t('table.interface.house')"
+            v-model="newEditing.date"
           >
             <el-option
-              v-for="item in getSelectInfo"
-              :key="item"
-              :label="item.address"
-              :value="item.id"
+              class=""
+              v-for="(date, index) in dates"
+              :key="index"
+              :label="date"
+              :value="date"
             />
           </el-select>
-        </el-form-item>
-
-        <el-form-item prop="apartment_id" style="width: 240px">
+      </el-form-item>
+      <el-form-item prop="status" style="width: auto">    
+          <span class="discription-edit">{{ $t("table.interface.status") }}</span>
           <el-select
+            :placeholder="$t('table.placeholder.status')"
             class="dialog-content-header-item"
-            v-model="newCreating.apartment_id"
-            :placeholder="$t('table.interface.flat')"
+            v-model="newEditing.status"
           >
             <el-option
-              v-for="item in numberHome"
-              :key="item"
-              :label="item.label"
-              :value="item.number"
+              class=""
+              v-for="(status, index) in statuses"
+              :key="index"
+              :label="status"
+              :value="status"
             />
           </el-select>
-        </el-form-item>
+      </el-form-item>
 
-        <el-form-item prop="due_date">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newCreating.due_date"
-            type="datetime-local"
-            :placeholder="$t('table.interface.term')"
+      <el-form-item prop="moduleName" style="width: auto">
+        <span class="discription-edit">{{ $t("table.interface.moduleName") }}</span>
+        <el-select
+          :placeholder="$t('table.placeholder.moduleName')"
+          class="dialog-content-header-item"
+          v-model="newEditing.moduleName"
+        >
+          <el-option
+            class=""
+            v-for="(moduleName, index) in moduleNames"
+            :key="index"
+            :label="moduleName"
+            :value="moduleName"
           />
-        </el-form-item>
-      </div>
-      <div class="dialog-content-header">
-        <el-form-item prop="applicant.last_name">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newCreating.applicant.last_name"
-            :placeholder="$t('table.interface.surname')"
-          />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item prop="applicant.first_name">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newCreating.applicant.first_name"
-            :placeholder="$t('table.interface.name')"
+      <el-form-item prop="sessionType" style="width: auto">
+        <span class="discription-edit">{{ $t("table.interface.sessionType") }}</span>
+        <el-select
+          :placeholder="$t('table.placeholder.sessionType')"
+          class="dialog-content-header-item"
+          v-model="newEditing.sessionType"
+        >
+          <el-option
+            class=""
+            v-for="(sessionType, index) in sessionTypes"
+            :key="index"
+            :label="sessionType"
+            :value="sessionType"
           />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item prop="applicant.patronymic_name">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newCreating.applicant.patronymic_name"
-            :placeholder="$t('table.interface.middle_name')"
+      <el-form-item prop="room" style="width: auto">
+        <span class="discription-edit">{{ $t("table.interface.room") }}</span>
+        <el-select
+          :placeholder=" $t('table.placeholder.room')"
+          class="dialog-content-header-item"
+          v-model="newEditing.room"
+        >
+          <el-option
+            class=""
+            v-for="(room, index) in rooms"
+            :key="index"
+            :label="room"
+            :value="room"
           />
-        </el-form-item>
+        </el-select>
+      </el-form-item>
 
-        <el-form-item prop="applicant.username">
-          <el-input
-            class="dialog-content-header-item"
-            v-model="newCreating.applicant.username"
-            :placeholder="$t('table.interface.phone')"
+      <el-form-item prop="group" style="width: auto">
+        <span class="discription-edit">{{ $t("table.interface.group") }}</span>
+        <el-select
+          :placeholder="$t('table.placeholder.group')"
+          class="dialog-content-header-item"
+          v-model="newEditing.group"
+        >
+          <el-option
+            class=""
+            v-for="(group, index) in groups"
+            :key="index"
+            :label="group"
+            :value="group"
           />
-        </el-form-item>
-      </div>
-      <div>
-        <el-form-item prop="description">
-          <textarea
-            class="dialog-content-textarea"
-            v-model="newCreating.description"
-            :placeholder="$t('table.interface.description_application')"
-            name=""
-            id=""
-            cols="93"
-            rows="13"
-          ></textarea>
-        </el-form-item>
-      </div>
+        </el-select>
+      </el-form-item>
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="submitForm(ruleFormRef)">{{
+          <el-button @click="createSession">{{
             $t("table.button.create")
           }}</el-button>
         </div>
@@ -104,227 +121,58 @@
   </el-form>
 </template>
 
-<script lang="ts" setup>
-import { ref, computed, reactive } from "vue";
-import api from "../api";
-import { FormInstance, FormRules } from "element-plus";
-import { useValidationRules } from "../valid";
+<script setup lang="ts">
+import { ref } from "vue";
+import { useListData } from "../stores/ListData";
 
-const { rules } = useValidationRules();
-const dialogVisible = ref(false);
-const dialogVisibleChange = () => {
-  console.log(dialogVisible.value);
-  dialogVisible.value = !dialogVisible.value;
-};
-
-const newCreating = ref({
-  address: "",
-  premise_id: "",
-  apartment_id: "",
-  applicant: {
-    first_name: "",
-    last_name: "",
-    patronymic_name: "",
-    username: "",
+const props = defineProps({
+  openDialog: {
+    type: Boolean,
+    default: false,
   },
-  description: "",
-  due_date: "",
-  status_id: "1",
 });
 
-const ruleFormRef = ref<FormInstance>();
 
-// const rules = reactive<FormRules>({
-//   address: [
-//     { required: true, validator: valid.checkAddress, trigger: "change" },
-//   ],
-//   apartment_id: [
-//     { required: true, validator: valid.checkApartment, trigger: "change" },
-//   ],
-//   "applicant.first_name": [
-//     { required: true, validator: valid.checkName, trigger: "change" },
-//   ],
-//   "applicant.last_name": [
-//     { required: true, validator: valid.checkLastName, trigger: "change" },
-//   ],
-//   "applicant.patronymic_name": [
-//     { required: true, validator: valid.checkPatronymic, trigger: "change" },
-//   ],
-//   "applicant.username": [
-//     { required: true, validator: valid.ckeckPhone, trigger: "change" },
-//   ],
-//   description: [
-//     { required: true, validator: valid.checkDescription, trigger: "change" },
-//   ],
-//   due_date: [{ required: true, validator: valid.checkData, trigger: "change" }],
-// });
+const dialogVisibleCreate = ref(props.openDialog);
 
-// const checkAddress = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please choose address'))
-//   }
-//      callback();
-// }
+const store = useListData();
 
-// const checkApartment = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please choose apartment'))
-//   }
-//      callback();
-// }
-
-// const checkLastName = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please input last name'))
-//   }
-//     if (value.length < 3) {
-//       return callback(new Error('Last name should be more than 3'))
-//     }
-//      callback();
-// }
-
-// const checkName = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please input name'))
-//   }
-//     if (value.length < 3) {
-//       return callback(new Error('Name should be more than 3'))
-//     }
-//      callback();
-// }
-
-// const checkPatronymic = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please input patronymic'))
-//   }
-//     if (value.length < 3) {
-//       return callback(new Error('Patronymic should be more than 3'))
-//     }
-//      callback();
-// }
-
-// const checkData = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please choose date'))
-//   }
-//      callback();
-// }
-
-// const ckeckPhone = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please input phone'))
-//   }
-//     if (value.length < 11) {
-//       return callback(new Error('Phone should normal 11 numbers'))
-//     }
-//      callback();
-// }
-
-// const checkDescription = (rule: any, value: any, callback: any) => {
-//   if (!value) {
-//     return callback(new Error('Please input description'))
-//   }
-//   if (value.length < 3) {
-//     return callback(new Error('Description should be more than 3'))
-//   }
-// }
-
-// const rules = reactive<FormRules<any>>({
-//   address: [
-//     { validator: checkAddress, trigger: "blur" },
-//   ],
-//   apartment_id: [
-//     { validator: checkApartment, trigger: "blur" },
-//   ],
-//   due_date: [
-//     { validator: checkData, trigger: "blur" },
-//   ],
-//   "applicant.last_name": [
-//   { validator: checkLastName, trigger: "blur" },
-//   ],
-//   "applicant.first_name": [
-//   { validator: checkName, trigger: "blur" },
-//   ],
-//   "applicant.patronymic_name": [
-//   { validator: checkPatronymic, trigger: "blur" },
-//   ],
-//   "applicant.username": [
-//   { validator: ckeckPhone, trigger: "blur" },
-//   ],
-//   description: [
-//     { validator: checkDescription, trigger: "blur" },
-//   ],
-
-// });
-
-const tableData = ref([]);
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log("submit!");
-      try {
-        api.tickets.createTicket(newCreating.value).then((data) => {
-          console.log(data);
-        });
-      } catch (error) {
-        console.error("Ошибка отправки данных:", error);
-      }
-    } else {
-      console.log("error submit!", fields);
-    }
-  });
-};
-
-const getPremise = async () => {
-  api.tickets.getPremise().then((data) => {
-    tableData.value = data.data.results;
-  });
-};
-getPremise();
-
-const currentPremise = ref("");
-
-const getSelectInfo = computed(() => {
-  const res = tableData.value.map((item: any) => {
-    return item;
-  });
-  return res;
+const newEditing = ref({
+  date: "",
+  status: "",
+  moduleName: "",
+  sessionType: "",
+  room: "",
+  group: "",
 });
 
-const handleChange = () => {
-  getSelectInfo.value.forEach((item: any) => {
-    if (item.id === newCreating.value.address) {
-      currentPremise.value = item.id;
-      newCreating.value.address = item.address;
-      newCreating.value.apartment_id = item.apartment_id;
-      newCreating.value.premise_id = currentPremise.value;
-    }
-  });
-  getApartment();
-}
+const dates = ["15.07.2024, 14:00 - 15:00", "16.07.2024, 12:00 - 13:00"]
+const statuses = ["Запланировано", "Идет", "Завершено"]
+const moduleNames = ["Базовые навыки в ультразвуковом иследовании", "Акушерство и гинекология", "Базовые навыки в ультразвуковом иследовании"]
+const sessionTypes = ["Урок", "Акредитация", "Экзамен"]
+const groups = ["ТП-31", "240011С", "КЛ-98"]
+const rooms = ["Комната 6", "Комната 7", "Комната 2"]
 
 
-const numberHome = ref([]);
-const getApartment = async () => {
-  api.tickets.getApartments(currentPremise.value).then((data) => {
-    numberHome.value = data.data.results;
-    newCreating.value.premise_id = currentPremise.value;
-    console.log("apartment", data);
-  });
+const getTicketFromStore = () => {
+  newEditing.value.date = store.editingTicketData.date;
+  newEditing.value.status = store.editingTicketData.status;
+  newEditing.value.moduleName = store.editingTicketData.moduleName;
+  newEditing.value.sessionType = store.editingTicketData.sessionType;
+  newEditing.value.room = store.editingTicketData.room;
+  newEditing.value.group = store.editingTicketData.group;
+};
+
+getTicketFromStore();
+
+const createSession = () => {
+  store.content.push(newEditing.value);
+  localStorage.setItem("tableData", JSON.stringify(store.content));
+  dialogVisibleCreate.value = false;
 };
 </script>
 
-<style lang="scss">
-.buttonCreate {
-  display: block;
-  margin-left: auto;
-  margin-right: 20px;
-}
-</style>
-
-<style lang="scss">
+<style lang="scss" scoped>
 .dialog-content-header {
   display: flex;
   padding: 5px;
@@ -342,5 +190,11 @@ const getApartment = async () => {
   padding-top: 20px;
   border: none;
   border-bottom: 2px solid #ccc;
+}
+
+.discription-edit {
+  margin: auto;
+  text-decoration: underline;
+  text-decoration-color: red;
 }
 </style>
